@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Oliver Atwood">
+<meta name="dcterms.date" content="2023-12-19">
+
+<title>Hotspot Stoplight Clustering Analysis - Raster Pre-Processing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Raster Pre-Processing</li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-center sidebar-header">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../images/Stoplight_Thumbnail.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
+      </a>
+      <div class="sidebar-tools-main">
+    <a href="https://github.com/HotspotStoplight/HotspotStoplight" rel="" title="Hotspot Stoplight GitHub" class="quarto-navigation-tool px-1" aria-label="Hotspot Stoplight GitHub"><i class="bi bi-github"></i></a>
+</div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">About the Project</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../analysis/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+ <span class="menu-text">analysis/WeightedOverlayRasters.ipynb</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/HotspotClustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hotspot Clustering</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a>
+  <ul class="collapse">
+  <li><a href="#setting-parameters" id="toc-setting-parameters" class="nav-link" data-scroll-target="#setting-parameters">Setting Parameters</a></li>
+  <li><a href="#loading-datasets" id="toc-loading-datasets" class="nav-link" data-scroll-target="#loading-datasets">Loading Datasets</a></li>
+  <li><a href="#check-raster-coordinate-systems-resolutions-and-extents" id="toc-check-raster-coordinate-systems-resolutions-and-extents" class="nav-link" data-scroll-target="#check-raster-coordinate-systems-resolutions-and-extents">Check Raster Coordinate Systems, Resolutions, and Extents</a></li>
+  <li><a href="#unify-raster-coordinate-systems-resolutions-and-extents" id="toc-unify-raster-coordinate-systems-resolutions-and-extents" class="nav-link" data-scroll-target="#unify-raster-coordinate-systems-resolutions-and-extents">Unify Raster Coordinate Systems, Resolutions, and Extents</a></li>
+  <li><a href="#plot-rasters-for-visual-inspection" id="toc-plot-rasters-for-visual-inspection" class="nav-link" data-scroll-target="#plot-rasters-for-visual-inspection">Plot Rasters for Visual Inspection</a></li>
+  <li><a href="#double-check-raster-coordinate-systems-resolutions-and-extents" id="toc-double-check-raster-coordinate-systems-resolutions-and-extents" class="nav-link" data-scroll-target="#double-check-raster-coordinate-systems-resolutions-and-extents">Double-Check Raster Coordinate Systems, Resolutions, and Extents</a></li>
+  <li><a href="#remove-all-na-values-from-rasters" id="toc-remove-all-na-values-from-rasters" class="nav-link" data-scroll-target="#remove-all-na-values-from-rasters">Remove all NA values from rasters</a></li>
+  <li><a href="#normalize-all-rasters" id="toc-normalize-all-rasters" class="nav-link" data-scroll-target="#normalize-all-rasters">Normalize all rasters</a></li>
+  <li><a href="#generate-interaction-rasters" id="toc-generate-interaction-rasters" class="nav-link" data-scroll-target="#generate-interaction-rasters">Generate Interaction Rasters</a></li>
+  <li><a href="#overlay-rasters-to-produce-stoplight-for-urban-development" id="toc-overlay-rasters-to-produce-stoplight-for-urban-development" class="nav-link" data-scroll-target="#overlay-rasters-to-produce-stoplight-for-urban-development">Overlay Rasters to Produce ‘Stoplight For Urban Development’</a></li>
+  </ul></li>
+  <li><a href="#plots" id="toc-plots" class="nav-link" data-scroll-target="#plots">Plots</a>
+  <ul class="collapse">
+  <li><a href="#hotspot-stoplight-raster" id="toc-hotspot-stoplight-raster" class="nav-link" data-scroll-target="#hotspot-stoplight-raster">Hotspot Stoplight Raster</a></li>
+  <li><a href="#export-datasets-for-further-analysis" id="toc-export-datasets-for-further-analysis" class="nav-link" data-scroll-target="#export-datasets-for-further-analysis">Export Datasets for Further Analysis</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/MUSA-550-Fall-2023/quarto-website-template/blob/main/analysis/WeightedOverlayRasters.Rmd" class="toc-action">View source</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Raster Pre-Processing</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Oliver Atwood </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 19, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<p><br> This r markdown script pre-processes raster data used in the Hotspot Stoplight Project for visualization and cluster analysis. The datasets used in this project are as follows:</p>
+<ul>
+<li><p>LAND COVER CHANGE PROBABILITY - <a href="https://env1.arcgis.com/arcgis/rest/services/Land_Cover_Vulnerability_2050/ImageServer0">Clark Labs</a></p></li>
+<li><p>BIODIVERSITY INTACTNESS INDEX - <a href="https://gee-community-catalog.org/projects/bii/">Impact Observatory</a></p></li>
+<li><p>CLIMATE RISK INDEX - Hotspot Stoplight Team: <a href="http://nlebovits.github.io/">Nissim Lebovits</a></p></li>
+<li><p>GRIDDED 2020 POPULATION - <a href="https://ghsl.jrc.ec.europa.eu/download.php?ds=bu">Global Human Settlements Layer</a></p></li>
+<li><p>URBAN LAND COVER PROBABILITY - Hotspot Stoplight Team: Oliver Atwood, using classified data from Tristan Grupp <br> <br></p></li>
+<li><p>Each of these raster datasets are loaded into R and their Coordinate Systems, Resolution, and Extent are standardized. NA values are then removed and each dataset is standardized. <br></p></li>
+<li><p>Four of these standardized datasets are then combined to produce two ‘Interaction Rasters’, using the following formulas: <br> Bio_x_Risk = LCC_Probability * BII <br> <em>Bio_x_Risk emphasizes areas of high land cover change probability and high biodiversity intactness.</em> <br> Anthro_x_Risk = Climate_Hazards * pop2020 <br> <em>Anthro_x_Risk emphasizes areas of high climate hazard probability and high human population.</em> <br> Urban Land Cover Probability is a dataset generated through a random forest model trained on a range of physiographic factors to predict the likelihood of a given cell of a land cover raster to be urban in 2033. <br></p></li>
+<li><p>Bio_x_Risk and Anthro_x_Risk were both normalized and Bio_x_Risk, Anthro_x_Risk, and Urban Land Cover Probability were exported for clustering analysis. <br></p></li>
+<li><p>These three datasets were then added together and the resultant raster dataset was normalized to produce a ‘Stoplight for Urban Development’.</p></li>
+</ul>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-1_93d3f4a6d3124f8ef08f62d8f4d80c10">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(raster)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spdep)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rasterVis)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Capture the start time</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="setting-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="setting-parameters">Setting Parameters</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-2_9080e635f6eb646085d9f493126f6d26">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>coordinate_system <span class="ot">&lt;-</span> <span class="dv">4326</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Target resolution in m</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>resolution <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Conversion to degrees</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>resolution <span class="ot">&lt;-</span> (resolution<span class="sc">/</span><span class="dv">30</span>)<span class="sc">/</span><span class="dv">3600</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="loading-datasets" class="level2">
+<h2 class="anchored" data-anchor-id="loading-datasets">Loading Datasets</h2>
+</section>
+<section id="check-raster-coordinate-systems-resolutions-and-extents" class="level2">
+<h2 class="anchored" data-anchor-id="check-raster-coordinate-systems-resolutions-and-extents">Check Raster Coordinate Systems, Resolutions, and Extents</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-4_73018e1f651808a523699736514cab4a">
+<pre><code>## Coordinate system does not match
+## Resolution does not match
+## Extent does not match</code></pre>
+</div>
+</section>
+<section id="unify-raster-coordinate-systems-resolutions-and-extents" class="level2">
+<h2 class="anchored" data-anchor-id="unify-raster-coordinate-systems-resolutions-and-extents">Unify Raster Coordinate Systems, Resolutions, and Extents</h2>
+</section>
+<section id="plot-rasters-for-visual-inspection" class="level2">
+<h2 class="anchored" data-anchor-id="plot-rasters-for-visual-inspection">Plot Rasters for Visual Inspection</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-6_3bc785f6920c4e45b0c61cddf2206b1d">
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-6-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-6-5.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="double-check-raster-coordinate-systems-resolutions-and-extents" class="level2">
+<h2 class="anchored" data-anchor-id="double-check-raster-coordinate-systems-resolutions-and-extents">Double-Check Raster Coordinate Systems, Resolutions, and Extents</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-7_b848ec8966148f75fa4766c0e526068d">
+<pre><code>## Coordinate system matches
+## Resolution matches
+## Extent matches</code></pre>
+</div>
+</section>
+<section id="remove-all-na-values-from-rasters" class="level2">
+<h2 class="anchored" data-anchor-id="remove-all-na-values-from-rasters">Remove all NA values from rasters</h2>
+</section>
+<section id="normalize-all-rasters" class="level2">
+<h2 class="anchored" data-anchor-id="normalize-all-rasters">Normalize all rasters</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-9_c26157adc17f3b243827f3c2e188ab6a">
+<pre><code>## Min value: 0 Max value: 1000 
+## Min value: 0 Max value: 0.9647594 
+## Min value: 0.001399566 Max value: 0.9714958 
+## Min value: 0 Max value: 579.4982 
+## Min value: -1.582723e-14 Max value: 1</code></pre>
+</div>
+</section>
+<section id="generate-interaction-rasters" class="level2">
+<h2 class="anchored" data-anchor-id="generate-interaction-rasters">Generate Interaction Rasters</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-10_886d5fb06b9861c63ebd36a46e776796">
+<pre><code>## Min value: 0 Max value: 0.9497479
+## Min value: 0 Max value: 0.842676
+## Min value: 0 Max value: 1</code></pre>
+</div>
+</section>
+<section id="overlay-rasters-to-produce-stoplight-for-urban-development" class="level2">
+<h2 class="anchored" data-anchor-id="overlay-rasters-to-produce-stoplight-for-urban-development">Overlay Rasters to Produce ‘Stoplight For Urban Development’</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-11_c74277b63698c60a54b774875d0523ff">
+<pre><code>## Min value: -0.9994601 Max value: 0.9963884</code></pre>
+</div>
+</section>
+</section>
+<section id="plots" class="level1">
+<h1>Plots</h1>
+<p><br></p>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-12_c39bb1898372ad77458f6d439766d0c0">
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-13_da6286fbd3acf8e68c2afdb8f8bf4022">
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-14_bbcec5ebaa428a12c34ca83ff188d78e">
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<section id="hotspot-stoplight-raster" class="level2">
+<h2 class="anchored" data-anchor-id="hotspot-stoplight-raster">Hotspot Stoplight Raster</h2>
+<div class="cell" data-hash="WeightedOverlayRasters_cache/html/unnamed-chunk-15_49f16f14024fdaab8b82d4948b083901">
+<div class="cell-output-display">
+<p><img src="WeightedOverlayRasters_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+</section>
+<section id="export-datasets-for-further-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="export-datasets-for-further-analysis">Export Datasets for Further Analysis</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # Export the raster as a TIFF</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># setwd('/Users/oliveratwood/Documents/GitHub/HotspotStoplight/VisualProduction')</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Save the final raster</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># writeRaster(Hotspot_Stoplight, "Hotspot_Stoplight_2023.tif", overwrite=TRUE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # Export the raster as a TIFF</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># setwd('/Users/oliveratwood/Documents/GitHub/HotspotStoplight/clustering')</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Save the final raster</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># writeRaster(Bio_x_Risk_norm, "BioRiskNorm.tif", overwrite=TRUE)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># writeRaster(Anthro_x_Risk_norm, "AnthroRiskNorm.tif", overwrite=TRUE)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># writeRaster(UrbanProbability_norm, "UrbanProbability.tif", overwrite=TRUE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Capture the end time</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>end_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate and print the runtime</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>runtime <span class="ot">&lt;-</span> end_time <span class="sc">-</span> start_time</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Total runtime:"</span>, runtime))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Total runtime: 1.93805374496513"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">© CC-Oliver Atwood, 2023</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">This page is built with <a href="https://quarto.org/">Quarto</a>.</div>
+  </div>
+</footer>
+
+
+
+</body></html>

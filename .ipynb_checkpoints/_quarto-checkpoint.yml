@@ -1,0 +1,52 @@
+project:
+  type: website
+  output-dir: docs
+  preview:
+    port: 3333
+
+website:
+  title: "Hotspot Stoplight Clustering Analysis"
+  site-url: "https://musa-550-fall-2023.github.io/quarto-website-template" 
+  repo-url: https://github.com/MUSA-550-Fall-2023/quarto-website-template 
+  repo-actions: [source]
+
+  page-footer:
+    right: "This page is built with [Quarto](https://quarto.org/)."
+    left: "&copy; CC-Oliver Atwood, 2023"
+
+  sidebar:
+    logo: "images/Stoplight_Thumbnail.png"
+    pinned: true
+    align: center
+    tools: 
+      # - icon: globe
+      #   href: http://oliver-atwood.com
+      #   text: "Personal Website"
+      - icon: github
+        href: https://github.com/HotspotStoplight/HotspotStoplight
+        text: "Hotspot Stoplight GitHub"      
+
+    style: "docked"
+    search: true
+    collapse-level: 2
+    contents:
+      - href: index.qmd
+        text: About the Project
+      - section: analysis/index.qmd
+        contents:
+          - analysis/WeightedOverlayRasters.ipynb
+          - analysis/HotspotClustering.ipynb
+
+format:
+  html:
+    highlight-style: solarized
+    theme: darkly  # Change to a dark mode theme like 'darkly'
+    css: styles.css
+    code-copy: true
+    code-overflow: wrap
+    toc: true
+
+
+
+
+
