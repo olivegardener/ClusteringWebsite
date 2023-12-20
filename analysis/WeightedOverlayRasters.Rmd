@@ -12,7 +12,7 @@ This r markdown script pre-processes raster data used in the Hotspot Stoplight P
 * BIODIVERSITY INTACTNESS INDEX - [Impact Observatory](https://gee-community-catalog.org/projects/bii/)
 * CLIMATE RISK INDEX - Hotspot Stoplight Team: [Nissim Lebovits](http://nlebovits.github.io/)
 * GRIDDED 2020 POPULATION - [Global Human Settlements Layer](https://ghsl.jrc.ec.europa.eu/download.php?ds=bu)
-* URBAN LAND COVER PROBABILITY - Hotspot Stoplight Team: Oliver Atwood, using classified data from Tristan Grupp
+* URBAN LAND COVER PROBABILITY - Hotspot Stoplight Team: [Oliver Atwood](https://www.linkedin.com/in/oliveratwood), using classified data from [Tristan Grupp](https://scholar.google.com/citations?user=yX3Ed8EAAAAJ&hl=en)
 <br>
 <br>
 
