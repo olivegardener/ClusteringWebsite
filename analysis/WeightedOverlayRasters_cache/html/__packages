@@ -8,3 +8,4 @@ spData
 spdep
 lattice
 rasterVis
+gridExtra

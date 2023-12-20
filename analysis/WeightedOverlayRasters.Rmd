@@ -40,7 +40,7 @@ knitr::opts_chunk$set(echo = TRUE, collapse=TRUE)
 rm(list=ls())
 ```
 
-```{r, message=FALSE, warning=FALSE, cache=TRUE, results = 'hide'}
+```{r, message=FALSE, warning=FALSE, cache=TRUE, results = 'hide', echo=FALSE}
 library(sf)
 library(raster)
 library(dplyr)
@@ -48,13 +48,16 @@ library(readr)
 library(terra)
 library(spdep)
 library(rasterVis)
+library(lattice)
+library(gridExtra)
+
 
 # Capture the start time
 # start_time <- Sys.time()
 ```
 
 ## Setting Parameters
-```{r, message=FALSE, warning=FALSE, cache=TRUE, results = 'hide'}
+```{r, message=FALSE, warning=FALSE, cache=TRUE, results = 'hide', echo=FALSE}
 coordinate_system <- 4326
 # Target resolution in m
 resolution <- 30
@@ -83,8 +86,11 @@ temp <- tempfile(fileext = ".tif")
 download.file(url, temp, method = "auto")
 BII <- raster(temp)
 
-# CLIMATE RISK 
-Climate_Hazards = raster('/Users/oliveratwood/Box Sync/Hotspot Stoplight Data/san_jose_flood_probabilities.tif')
+# CLIMATE HAZARDS
+url <- "https://github.com/HotspotStoplight/HotspotStoplight/raw/main/flood_mapping/exports/san_jose_flood_probabilities.tif"
+temp <- tempfile(fileext = ".tif")
+download.file(url, temp, method = "auto")
+Climate_Hazards <- raster(temp)
 
 # POPULATION 2020
 url <- "https://github.com/HotspotStoplight/HotspotStoplight/raw/main/UrbanExpansion/data/Pop_2020_Crop4.tif"
@@ -93,7 +99,10 @@ download.file(url, temp, method = "auto")
 pop2020 <- raster(temp)
 
 # URBAN LAND COVER PROBABILITY
-UrbanProbability <- raster('/Users/oliveratwood/Documents/GitHub/HotspotStoplight/UrbanExpansion/data/Built.tif')
+url <- "https://github.com/HotspotStoplight/HotspotStoplight/raw/main/UrbanExpansion/data/Built.tif"
+temp <- tempfile(fileext = ".tif")
+download.file(url, temp, method = "auto")
+UrbanProbability <- raster(temp)
 
 ```
 ## Check Raster Coordinate Systems, Resolutions, and Extents
@@ -297,68 +306,67 @@ Hotspot_Stoplight <- normalize(UrbanProbability_norm - Bio_x_Risk_norm - Anthro_
 
 # Plots
 <br>
-```{r, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
+
+```{r plot settings}
 # Define the green-yellow-red color ramp
 color_ramp <- colorRampPalette(c("darkgreen", "yellow", "red"))
 
-# Extract the minimum and maximum values using global
+# Function to create a dark-themed plot for a raster
+plot_dark_mode_raster <- function(raster, values, title) {
+  num_breaks <- 255
+  breaks <- seq(values[1], values[2], length.out = num_breaks)
+  levelplot(raster, col.regions = color_ramp(num_breaks), at = breaks, main = title,
+            par.settings = list(
+              axis.line = list(col = "white"),
+              axis.text = list(col = "white"),
+              strip.background = list(col = "#6b6b6b"),
+              strip.border = list(col = "white"),
+              background = list(col = "#6b6b6b"),
+              main.text = list(col = "white"),
+              col.lab = "white",
+              col.main = "white",
+              col.sub = "white"
+            ))
+}
+```
+
+```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
+# Extract the minimum and maximum values for Anthro_x_Risk_norm raster
 min_val <- global(Anthro_x_Risk_norm, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(Anthro_x_Risk_norm, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite
+# Check if min_val and max_val are finite and plot
 if (is.finite(min_val) && is.finite(max_val)) {
-    # Determine the number of breaks
-    num_breaks <- 255
-
-    # Create a sequence of equally spaced breaks
-    breaks <- seq(min_val, max_val, length.out = num_breaks)
-
-    # Plot the raster using the defined color ramp
-    levelplot(Anthro_x_Risk_norm, col.regions=color_ramp(num_breaks), at=breaks, main="Anthropogenic Risk Index")
+    plot_dark_mode_raster(Anthro_x_Risk_norm, c(min_val, max_val), "Anthropogenic Risk Index")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
 
 ```
+```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
 
-```{r, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
-# Extract the minimum and maximum values using global
+# Extract the minimum and maximum values for Anthro_x_Risk_norm raster
 min_val <- global(Bio_x_Risk_norm, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(Bio_x_Risk_norm, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite
+# Check if min_val and max_val are finite and plot
 if (is.finite(min_val) && is.finite(max_val)) {
-    # Determine the number of breaks
-    num_breaks <- 255
-    # Create a sequence of equally spaced breaks
-    breaks <- seq(min_val, max_val, length.out = num_breaks)
-
-    # Plot the raster using the defined color ramp
-    levelplot(Bio_x_Risk_norm, col.regions=color_ramp(num_breaks), at=breaks, main="Biodiversity Risk Index")
+    plot_dark_mode_raster(Bio_x_Risk_norm, c(min_val, max_val), "Anthropogenic Risk Index")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
 
 ```
 
-```{r, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
-# Define the green-yellow-red color ramp
-color_ramp <- colorRampPalette(c("red", "yellow", "darkgreen"))
+```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
 
-# Extract the minimum and maximum values using global
+# Extract the minimum and maximum values for Anthro_x_Risk_norm raster
 min_val <- global(UrbanProbability_norm, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(UrbanProbability_norm, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite
+# Check if min_val and max_val are finite and plot
 if (is.finite(min_val) && is.finite(max_val)) {
-    # Determine the number of breaks
-    num_breaks <- 255
-
-    # Create a sequence of equally spaced breaks
-    breaks <- seq(min_val, max_val, length.out = num_breaks)
-
-    # Plot the raster using the defined color ramp
-    levelplot(UrbanProbability_norm, col.regions=color_ramp(num_breaks), at=breaks, main="Urban Probability - Random Forest Model, 2033")
+    plot_dark_mode_raster(UrbanProbability_norm, c(min_val, max_val), "Anthropogenic Risk Index")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
@@ -367,27 +375,40 @@ if (is.finite(min_val) && is.finite(max_val)) {
 
 ## Hotspot Stoplight Raster
 ```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
+color_ramp <- colorRampPalette(c("red", "yellow", "darkgreen"))
+
+# Function to create a dark-themed plot for a raster
+plot_dark_mode_raster <- function(raster, values, title) {
+  num_breaks <- 255
+  breaks <- seq(values[1], values[2], length.out = num_breaks)
+  levelplot(raster, col.regions = color_ramp(num_breaks), at = breaks, main = title,
+            par.settings = list(
+              axis.line = list(col = "white"),
+              axis.text = list(col = "white"),
+              strip.background = list(col = "#6b6b6b"),
+              strip.border = list(col = "white"),
+              background = list(col = "#6b6b6b"),
+              main.text = list(col = "white"),
+              col.lab = "white",
+              col.main = "white",
+              col.sub = "white"
+            ))
+}
+
 # Extract the minimum and maximum values using global
 min_val <- global(Hotspot_Stoplight, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(Hotspot_Stoplight, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite
+# Check if min_val and max_val are finite and plot
 if (is.finite(min_val) && is.finite(max_val)) {
-    # Determine the number of breaks
-    num_breaks <- 255
-
-    # Create a sequence of equally spaced breaks
-    breaks <- seq(min_val, max_val, length.out = num_breaks)
-
-    # Plot the raster using the defined color ramp
-    plot(Hotspot_Stoplight, col=color_ramp(num_breaks), breaks=breaks, main="Hotspot Stoplight")
+    plot_dark_mode_raster(Hotspot_Stoplight, c(min_val, max_val), "Hotspot Stoplight")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
 
 ```
 ## Export Datasets for Further Analysis
-```{r}
+```{r, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
 # # Export the raster as a TIFF
 # setwd('/Users/oliveratwood/Documents/GitHub/HotspotStoplight/VisualProduction')
 # 
@@ -395,7 +416,7 @@ if (is.finite(min_val) && is.finite(max_val)) {
 # writeRaster(Hotspot_Stoplight, "Hotspot_Stoplight_2023.tif", overwrite=TRUE)
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
 # # Export the raster as a TIFF
 # setwd('/Users/oliveratwood/Documents/GitHub/HotspotStoplight/clustering')
 # 
@@ -405,7 +426,7 @@ if (is.finite(min_val) && is.finite(max_val)) {
 # writeRaster(UrbanProbability_norm, "UrbanProbability.tif", overwrite=TRUE)
 ```
 
-```{r timer_end}
+```{r, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
 # # Capture the end time
 # end_time <- Sys.time()
 # 
