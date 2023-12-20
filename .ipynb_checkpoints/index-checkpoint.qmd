@@ -1,7 +1,8 @@
 ---
 title: "Hotspot Stoplight - Clustering Analysis"
-subtitle: "Integrated Modeling, Analysis, and Mapping of Climate Risk, Biodiversity Loss, and Urban Expansion"
+subtitle: "Integrated Mapping, Modeling, and Analysis of Climate Risk, Biodiversity Loss, and Urban Expansion"
 ---
+![Example Image](example.jpg){width=50%}
 
 ## About the Project
 

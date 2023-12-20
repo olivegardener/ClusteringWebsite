@@ -34,7 +34,7 @@ website:
         text: About the Project
       - section: analysis/index.qmd
         contents:
-          - analysis/WeightedOverlayRasters.ipynb
+          - analysis/WeightedOverlayRasters.Rmd
           - analysis/HotspotClustering.ipynb
 
 format:
