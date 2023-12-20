@@ -307,51 +307,44 @@ Hotspot_Stoplight <- normalize(UrbanProbability_norm - Bio_x_Risk_norm - Anthro_
 # Plots
 <br>
 
-```{r plot settings}
+```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
 # Define the green-yellow-red color ramp
 color_ramp <- colorRampPalette(c("darkgreen", "yellow", "red"))
 
-# Function to create a dark-themed plot for a raster
-plot_dark_mode_raster <- function(raster, values, title) {
-  num_breaks <- 255
-  breaks <- seq(values[1], values[2], length.out = num_breaks)
-  levelplot(raster, col.regions = color_ramp(num_breaks), at = breaks, main = title,
-            par.settings = list(
-              axis.line = list(col = "white"),
-              axis.text = list(col = "white"),
-              strip.background = list(col = "#6b6b6b"),
-              strip.border = list(col = "white"),
-              background = list(col = "#6b6b6b"),
-              main.text = list(col = "white"),
-              col.lab = "white",
-              col.main = "white",
-              col.sub = "white"
-            ))
-}
-```
-
-```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
-# Extract the minimum and maximum values for Anthro_x_Risk_norm raster
+# Extract the minimum and maximum values using global
 min_val <- global(Anthro_x_Risk_norm, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(Anthro_x_Risk_norm, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite and plot
+# Check if min_val and max_val are finite
 if (is.finite(min_val) && is.finite(max_val)) {
-    plot_dark_mode_raster(Anthro_x_Risk_norm, c(min_val, max_val), "Anthropogenic Risk Index")
+    # Determine the number of breaks
+    num_breaks <- 255
+
+    # Create a sequence of equally spaced breaks
+    breaks <- seq(min_val, max_val, length.out = num_breaks)
+
+    # Plot the raster using the defined color ramp
+    levelplot(Anthro_x_Risk_norm, col.regions=color_ramp(num_breaks), at=breaks, main="Anthropogenic Risk Index")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
 
 ```
-```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
 
-# Extract the minimum and maximum values for Anthro_x_Risk_norm raster
+```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
+# Extract the minimum and maximum values using global
 min_val <- global(Bio_x_Risk_norm, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(Bio_x_Risk_norm, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite and plot
+# Check if min_val and max_val are finite
 if (is.finite(min_val) && is.finite(max_val)) {
-    plot_dark_mode_raster(Bio_x_Risk_norm, c(min_val, max_val), "Anthropogenic Risk Index")
+    # Determine the number of breaks
+    num_breaks <- 255
+    # Create a sequence of equally spaced breaks
+    breaks <- seq(min_val, max_val, length.out = num_breaks)
+
+    # Plot the raster using the defined color ramp
+    levelplot(Bio_x_Risk_norm, col.regions=color_ramp(num_breaks), at=breaks, main="Biodiversity Risk Index")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
@@ -359,14 +352,23 @@ if (is.finite(min_val) && is.finite(max_val)) {
 ```
 
 ```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
+# Define the green-yellow-red color ramp
+color_ramp <- colorRampPalette(c("red", "yellow", "darkgreen"))
 
-# Extract the minimum and maximum values for Anthro_x_Risk_norm raster
+# Extract the minimum and maximum values using global
 min_val <- global(UrbanProbability_norm, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(UrbanProbability_norm, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite and plot
+# Check if min_val and max_val are finite
 if (is.finite(min_val) && is.finite(max_val)) {
-    plot_dark_mode_raster(UrbanProbability_norm, c(min_val, max_val), "Anthropogenic Risk Index")
+    # Determine the number of breaks
+    num_breaks <- 255
+
+    # Create a sequence of equally spaced breaks
+    breaks <- seq(min_val, max_val, length.out = num_breaks)
+
+    # Plot the raster using the defined color ramp
+    levelplot(UrbanProbability_norm, col.regions=color_ramp(num_breaks), at=breaks, main="Urban Probability - Random Forest Model, 2033")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
@@ -375,33 +377,20 @@ if (is.finite(min_val) && is.finite(max_val)) {
 
 ## Hotspot Stoplight Raster
 ```{r, fig.width=10, message=FALSE, warning=FALSE, cache=TRUE, echo=FALSE}
-color_ramp <- colorRampPalette(c("red", "yellow", "darkgreen"))
-
-# Function to create a dark-themed plot for a raster
-plot_dark_mode_raster <- function(raster, values, title) {
-  num_breaks <- 255
-  breaks <- seq(values[1], values[2], length.out = num_breaks)
-  levelplot(raster, col.regions = color_ramp(num_breaks), at = breaks, main = title,
-            par.settings = list(
-              axis.line = list(col = "white"),
-              axis.text = list(col = "white"),
-              strip.background = list(col = "#6b6b6b"),
-              strip.border = list(col = "white"),
-              background = list(col = "#6b6b6b"),
-              main.text = list(col = "white"),
-              col.lab = "white",
-              col.main = "white",
-              col.sub = "white"
-            ))
-}
-
 # Extract the minimum and maximum values using global
 min_val <- global(Hotspot_Stoplight, fun = 'min', na.rm = TRUE)[[1]]
 max_val <- global(Hotspot_Stoplight, fun = 'max', na.rm = TRUE)[[1]]
 
-# Check if min_val and max_val are finite and plot
+# Check if min_val and max_val are finite
 if (is.finite(min_val) && is.finite(max_val)) {
-    plot_dark_mode_raster(Hotspot_Stoplight, c(min_val, max_val), "Hotspot Stoplight")
+    # Determine the number of breaks
+    num_breaks <- 255
+
+    # Create a sequence of equally spaced breaks
+    breaks <- seq(min_val, max_val, length.out = num_breaks)
+
+    # Plot the raster using the defined color ramp
+    plot(Hotspot_Stoplight, col=color_ramp(num_breaks), breaks=breaks, main="Hotspot Stoplight")
 } else {
     cat("Raster contains non-finite or NA values only\n")
 }
