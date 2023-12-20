@@ -1,7 +1,6 @@
-# Quarto website template
+# Python Class Final Project
+## Hotspot Stoplight Cluster Analysis
 
-A template repository to use as a starting point for a public website describing
-the analysis and results the course's final project. The website uses
-Quarto to generate content and GitHub Pages to host the website.
+The Hotspot Stoplight Project is a partnership between UN Habitat and The McHarg Center for Urbanism and Ecology at the University of Pennsylvania. The Project seeks to develop a methodology for the integration of regionally-specific climate risk, biodiversity loss, and land cover change projections into a cartographic product and a high-resolution urban suitability index we call the 'Stoplight for Urban Development.' This website gathers together some of the preliminary findings of this research, focusing on the case study city of San Jose, Costa Rica.
 
-The published site for this example repository is available at: [https://musa-550-fall-2023.github.io/quarto-website-template/](https://musa-550-fall-2023.github.io/quarto-website-template/).
+The published website is available at: [https://olivegardener.github.io/ClusteringWebsite/](https://olivegardener.github.io/ClusteringWebsite/).
