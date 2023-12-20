@@ -12,6 +12,7 @@ The Hotspot Stoplight Project is a partnership between UN Habitat and The McHarg
 <br>
 The ultimate goal of this project is to use these projections to inform urban design and planning processes, bringing together data science and design to support the goals of de-siloing knowledge, projecting urban expansion to better understand where habitat loss is likely to occur, reduce habitat degradation and destruction, increase the accuracy of ecosystem services accounting, and promote deeper understanding among urban and regional planners of the interconnectedness of the natural and built environments.
 <br>
+
 ## Find out more
 
 The code base for this project is located on our GitHub page: <br>

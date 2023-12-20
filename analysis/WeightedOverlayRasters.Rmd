@@ -20,15 +20,15 @@ This r markdown script pre-processes raster data used in the Hotspot Stoplight P
 <br>
 * Four of these standardized datasets are then combined to produce two 'Interaction Rasters', using the following formulas:
 <br>
-Bio_x_Risk = LCC_Probability * BII
++ Bio_x_Risk = LCC_Probability * BII
 <br>
 *Bio_x_Risk emphasizes areas of high land cover change probability and high biodiversity intactness.*
 <br>
-Anthro_x_Risk = Climate_Hazards * pop2020
++ Anthro_x_Risk = Climate_Hazards * pop2020
 <br>
 *Anthro_x_Risk emphasizes areas of high climate hazard probability and high human population.*
 <br>
-Urban Land Cover Probability is a dataset generated through a random forest model trained on a range of physiographic factors to predict the likelihood of a given cell of a land cover raster to be urban in 2033.
++ Urban Land Cover Probability is a dataset generated through a random forest model trained on a range of physiographic factors to predict the likelihood of a given cell of a land cover raster to be urban in 2033.
 <br>
 
 * Bio_x_Risk and Anthro_x_Risk were both normalized and Bio_x_Risk, Anthro_x_Risk, and Urban Land Cover Probability were exported for clustering analysis.
